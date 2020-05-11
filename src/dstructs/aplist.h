@@ -14,6 +14,7 @@ struct bs_access_point {
     char ssid[32];
     char ifname[16];
     int freq;
+    time_t time;
 };
 
 struct bs_access_point_list {

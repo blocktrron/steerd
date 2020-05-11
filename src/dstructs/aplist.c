@@ -104,6 +104,8 @@ void bs_access_point_list_update(struct bs_access_point_list *apl,
     if (freq != 0)
         ap->freq = freq;
 
+    ap->time = time(0);
+
     pthread_mutex_unlock(&apl->lock);
 }
 
