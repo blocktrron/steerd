@@ -35,6 +35,31 @@ static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
     iwinfo_finish();
 }
 
+static void update_clients_for_interface(struct bs_station_list *sl,
+                                         char *ifname)
+{
+    struct iwinfo_assoclist_entry *entry;
+    const struct iwinfo_ops *iw;
+    char buf[IWINFO_BUFSIZE];
+    char bssid[8];
+    int len;
+
+    iw = iwinfo_backend(ifname);
+
+    if (!iw)
+        return;
+
+    iw->assoclist(ifname, buf, &len);
+    iw->bssid(ifname, bssid);
+    
+    for (int i = 0; i < len; i += sizeof(struct iwinfo_assoclist_entry)) {
+        entry = (struct iwinfo_assoclist_entry *) &buf[i];
+        bs_station_list_update(sl, bssid, (char *)entry->mac, entry->signal, NULL);
+    }
+
+    iwinfo_finish();
+}
+
 struct uloop_timeout iwinfo_timer = {
         .cb = update_iwinfo
 };
@@ -66,7 +91,21 @@ struct uloop_timeout client_timer = {
 };
 
 void update_clients(struct uloop_timeout *t) {
-    printf("Update clients\n");
+    glob_t globbuf;
+    char *ifname;
+
+    glob("/sys/class/net/*", 0, NULL, &globbuf);
+
+    for (int i = 0; i < globbuf.gl_pathc; i++) {
+        ifname = strrchr(globbuf.gl_pathv[i], '/');
+
+        if (!ifname)
+            continue;
+
+        update_clients_for_interface(station_list, ifname);
+    }
+
+    globfree(&globbuf);
     uloop_timeout_set(&client_timer, 10 * 1000);
 }
 
