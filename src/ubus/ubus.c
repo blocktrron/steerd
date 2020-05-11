@@ -1,3 +1,5 @@
+#include <glob.h>
+#include <iwinfo.h>
 #include <libubus.h>
 
 #include "aplist.h"
@@ -10,13 +12,51 @@ struct bs_access_point_list *ap_list;
 
 void update_iwinfo(struct uloop_timeout *t);
 
+static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
+                                  char *ifname)
+{
+    char ssid[IWINFO_ESSID_MAX_SIZE + 1];
+    const struct iwinfo_ops *iw;
+    char bssid[8];
+    int frequency;
+    int channel;
+
+    iw = iwinfo_backend(++ifname);
+
+    if (!iw)
+        return;
+
+    iw->bssid(ifname, bssid);
+    iw->ssid(ifname, ssid);
+    iw->channel(ifname, &channel);
+    iw->frequency(ifname, &frequency);
+
+    bs_access_point_list_update(apl, bssid, ssid, ifname, frequency);
+    iwinfo_finish();
+}
+
 struct uloop_timeout iwinfo_timer = {
         .cb = update_iwinfo
 };
 
-void update_iwinfo(struct uloop_timeout *t) {
-    printf("Update iwinfo\n");
-    uloop_timeout_set(&iwinfo_timer, 10 * 1000);
+void update_iwinfo(struct uloop_timeout *t)
+{
+    glob_t globbuf;
+    char *ifname;
+
+    glob("/sys/class/net/*", 0, NULL, &globbuf);
+
+    for (int i = 0; i < globbuf.gl_pathc; i++) {
+        ifname = strrchr(globbuf.gl_pathv[i], '/');
+
+        if (!ifname)
+            continue;
+
+        update_ap_from_iwinfo(ap_list, ifname);
+    }
+
+    globfree(&globbuf);
+    uloop_timeout_set(&iwinfo_timer, 60 * 1000);
 }
 
 void update_clients(struct uloop_timeout *t);
