@@ -6,6 +6,7 @@
 #include "aplist.h"
 #include "stalist.h"
 #include "mac.h"
+#include "steerd_debug.h"
 
 static struct ubus_context *ctx;
 
@@ -33,6 +34,8 @@ static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
     iw->ssid(ifname, ssid);
     iw->channel(ifname, &channel);
     iw->frequency(ifname, &frequency);
+
+    steerd_printf(MSG_DEBUG, "Updating AP %s (%s)", ifname, bssidstr);
 
     bs_access_point_list_update(apl, bssid, ssid, ifname, frequency);
     iwinfo_finish();
@@ -72,6 +75,8 @@ void update_iwinfo(struct uloop_timeout *t)
     glob_t globbuf;
     char *ifname;
 
+    steerd_printf(MSG_DEBUG, "Updating APs");
+
     glob("/sys/class/net/*", 0, NULL, &globbuf);
 
     for (int i = 0; i < globbuf.gl_pathc; i++) {
@@ -97,6 +102,8 @@ void update_clients(struct uloop_timeout *t) {
     glob_t globbuf;
     char *ifname;
 
+    steerd_printf(MSG_DEBUG, "Updating clients");
+
     glob("/sys/class/net/*", 0, NULL, &globbuf);
 
     for (int i = 0; i < globbuf.gl_pathc; i++) {
@@ -119,7 +126,7 @@ struct uloop_timeout beacon_reports_timer = {
 };
 
 void update_beacon_reports(struct uloop_timeout *t) {
-    printf("Update beacon reports\n");
+    steerd_printf(MSG_DEBUG, "Updating beacon reports");
     uloop_timeout_set(&client_timer, 10 * 1000);
 }
 

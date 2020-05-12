@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "ubus.h"
+#include "steerd_debug.h"
 
 struct sigaction signal_action;
 
@@ -34,6 +35,8 @@ int main(int argc, char **argv) {
 
     argc -= optind;
     argv += optind;
+
+    steerd_set_level(MSG_DEBUG);
 
     // connect signals
     signal_action.sa_handler = signal_handler;

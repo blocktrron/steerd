@@ -12,6 +12,8 @@ SET(SOURCES
 
         mac.c
         mac.h
+        steerd_debug.c
+        steerd_debug.h
 
         dstructs/aplist.c
         dstructs/aplist.h
