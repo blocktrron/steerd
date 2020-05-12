@@ -45,7 +45,12 @@ static void bs_station_list_resize(struct bs_station_list *sl, size_t new_length
 
 static struct bs_station *bs_station_list_add(struct bs_station_list *sl)
 {
+    struct bs_station *station;
+
     bs_station_list_resize(sl, sl->len + 1);
+    station = &sl->buf[sl->len - 1];
+
+    memset(station, 0, sizeof(struct bs_station));
 
     return &sl->buf[sl->len - 1];
 }

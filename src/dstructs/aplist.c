@@ -45,9 +45,14 @@ static void bs_access_point_list_resize(struct bs_access_point_list *apl, size_t
 
 static struct bs_access_point *bs_access_point_list_add(struct bs_access_point_list *apl)
 {
-    bs_access_point_list_resize(apl, apl->len + 1);
+    struct bs_access_point *ap;
 
-    return &apl->buf[apl->len - 1];
+    bs_access_point_list_resize(apl, apl->len + 1);
+    ap = &apl->buf[apl->len - 1];
+
+    memset(ap, 0, sizeof(struct bs_access_point));
+
+    return ap;
 }
 
 struct bs_access_point_list *bs_access_point_list_init()
