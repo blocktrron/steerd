@@ -7,5 +7,6 @@
 #define MAC_LENGTH  6
 
 int mac_is_equal(char *mac0, char *mac1);
+void macstrtol(char *out, char *in);
 
 #endif

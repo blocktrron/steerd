@@ -1,9 +1,11 @@
 #include <glob.h>
 #include <iwinfo.h>
 #include <libubus.h>
+#include <stdlib.h>
 
 #include "aplist.h"
 #include "stalist.h"
+#include "mac.h"
 
 static struct ubus_context *ctx;
 
@@ -17,7 +19,8 @@ static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
 {
     char ssid[IWINFO_ESSID_MAX_SIZE + 1];
     const struct iwinfo_ops *iw;
-    char bssid[8];
+    char bssidstr[18];
+    char bssid[6];
     int frequency;
     int channel;
 
@@ -26,7 +29,7 @@ static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
     if (!iw)
         return;
 
-    iw->bssid(ifname, bssid);
+    iw->bssid(ifname, bssidstr);
     iw->ssid(ifname, ssid);
     iw->channel(ifname, &channel);
     iw->frequency(ifname, &frequency);
