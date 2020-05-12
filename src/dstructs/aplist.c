@@ -94,7 +94,7 @@ void bs_access_point_list_update(struct bs_access_point_list *apl,
     ap = __bs_access_point_list_get(apl, bssid);
 
     if (!ap)
-        bs_access_point_list_add(apl);
+        ap = bs_access_point_list_add(apl);
 
     memcpy(ap->bssid, bssid, MAC_LENGTH);
     if (ssid)

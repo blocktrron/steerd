@@ -94,7 +94,7 @@ void bs_station_list_update(struct bs_station_list *sl,
     station = __bs_station_list_get(sl, addr);
 
     if (!station)
-        bs_station_list_add(sl);
+        station = bs_station_list_add(sl);
 
     memcpy(station->addr, addr, MAC_LENGTH);
     if (bssid)
