@@ -49,7 +49,9 @@ static void update_clients_for_interface(struct bs_station_list *sl,
     struct iwinfo_assoclist_entry *entry;
     const struct iwinfo_ops *iw;
     char buf[IWINFO_BUFSIZE];
+    char bssidstr[18];
     char bssid[8];
+    int new_sta;
     int len;
 
     iw = iwinfo_backend(ifname);
@@ -58,11 +60,15 @@ static void update_clients_for_interface(struct bs_station_list *sl,
         return;
 
     iw->assoclist(ifname, buf, &len);
-    iw->bssid(ifname, bssid);
+    iw->bssid(ifname, bssidstr);
+
+    macstrtol(bssid, bssidstr);
     
     for (int i = 0; i < len; i += sizeof(struct iwinfo_assoclist_entry)) {
         entry = (struct iwinfo_assoclist_entry *) &buf[i];
-        bs_station_list_update(sl, bssid, (char *)entry->mac, entry->signal, NULL);
+        new_sta = bs_station_list_update(sl, bssid, (char *)entry->mac, entry->signal, NULL);
+        if (new_sta > 0)
+            steerd_printf(MSG_DEBUG, "Adding STA for %s (%s)", ifname, bssidstr);
     }
 
     iwinfo_finish();
