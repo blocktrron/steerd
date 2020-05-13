@@ -25,7 +25,7 @@ static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
     int frequency;
     int channel;
 
-    iw = iwinfo_backend(++ifname);
+    iw = iwinfo_backend(ifname);
 
     if (!iw)
         return;
@@ -93,7 +93,7 @@ void update_iwinfo(struct uloop_timeout *t)
         if (!ifname)
             continue;
 
-        update_ap_from_iwinfo(ap_list, ifname);
+        update_ap_from_iwinfo(ap_list, ++ifname);
     }
 
     globfree(&globbuf);
@@ -120,7 +120,7 @@ void update_clients(struct uloop_timeout *t) {
         if (!ifname)
             continue;
 
-        update_clients_for_interface(station_list, ifname);
+        update_clients_for_interface(station_list, ++ifname);
     }
 
     globfree(&globbuf);
