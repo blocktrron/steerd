@@ -127,7 +127,7 @@ struct uloop_timeout beacon_reports_timer = {
 
 void update_beacon_reports(struct uloop_timeout *t) {
     steerd_printf(MSG_DEBUG, "Updating beacon reports");
-    uloop_timeout_set(&client_timer, 10 * 1000);
+    uloop_timeout_set(&beacon_reports_timer, 10 * 1000);
 }
 
 int init_buffers()
