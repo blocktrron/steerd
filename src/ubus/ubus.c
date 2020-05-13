@@ -35,6 +35,8 @@ static void update_ap_from_iwinfo(struct bs_access_point_list *apl,
     iw->channel(ifname, &channel);
     iw->frequency(ifname, &frequency);
 
+    macstrtol(bssid, bssidstr);
+
     steerd_printf(MSG_DEBUG, "Updating AP %s (%s)", ifname, bssidstr);
 
     bs_access_point_list_update(apl, bssid, ssid, ifname, frequency);
