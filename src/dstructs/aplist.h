@@ -29,7 +29,7 @@ int bs_access_point_list_get_bssid(struct bs_access_point_list *apl,
                                    struct bs_access_point *buf,
                                    char *bssid);
 
-void bs_access_point_list_update(struct bs_access_point_list *apl,
+int bs_access_point_list_update(struct bs_access_point_list *apl,
                                  char *bssid, char *ssid, char *ifname,
                                  int freq);
 

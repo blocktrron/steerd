@@ -85,21 +85,24 @@ int bs_access_point_list_get_bssid(struct bs_access_point_list *apl,
     return 0;
 }
 
-void bs_access_point_list_update(struct bs_access_point_list *apl,
+int bs_access_point_list_update(struct bs_access_point_list *apl,
                                  char *bssid, char *ssid, char *ifname,
                                  int freq)
 {
     struct bs_access_point *ap;
+    int ret = 0;
 
     if (!bssid)
-        return;
+        return -1;
 
     pthread_mutex_lock(&apl->lock);
 
     ap = __bs_access_point_list_get(apl, bssid);
 
-    if (!ap)
+    if (!ap) {
         ap = bs_access_point_list_add(apl);
+        ret = 1;
+    }
 
     memcpy(ap->bssid, bssid, MAC_LENGTH);
     if (ssid)
@@ -112,6 +115,7 @@ void bs_access_point_list_update(struct bs_access_point_list *apl,
     ap->time = time(0);
 
     pthread_mutex_unlock(&apl->lock);
+    return ret;
 }
 
 int bs_access_point_list_remove(struct bs_access_point_list *apl, char *bssid)

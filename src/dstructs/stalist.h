@@ -35,7 +35,7 @@ int bs_station_list_get(struct bs_station_list *sl,
                                 struct bs_station *buf,
                                 char *addr);
 
-void bs_station_list_update(struct bs_station_list *sl,
+int bs_station_list_update(struct bs_station_list *sl,
                                     char *addr, char *bssid, int signal,
                                     struct bs_beacon_report *beacon_report);
 

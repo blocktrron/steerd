@@ -85,21 +85,24 @@ int bs_station_list_get(struct bs_station_list *sl,
     return 0;
 }
 
-void bs_station_list_update(struct bs_station_list *sl,
+int bs_station_list_update(struct bs_station_list *sl,
                                     char *addr, char *bssid, int signal,
                                     struct bs_beacon_report *beacon_report)
 {
     struct bs_station *station;
+    int ret = 0;
 
     if (!addr)
-        return;
+        return -1;
 
     pthread_mutex_lock(&sl->lock);
 
     station = __bs_station_list_get(sl, addr);
 
-    if (!station)
+    if (!station) {
         station = bs_station_list_add(sl);
+        ret = 1;
+    }
 
     memcpy(station->addr, addr, MAC_LENGTH);
     if (bssid)
@@ -110,6 +113,7 @@ void bs_station_list_update(struct bs_station_list *sl,
         memcpy(&station->beacon_report, beacon_report, sizeof(struct bs_beacon_report));
 
     pthread_mutex_unlock(&sl->lock);
+    return ret;
 }
 
 int bs_station_list_remove(struct bs_station_list *sl, char *addr)
