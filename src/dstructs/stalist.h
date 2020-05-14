@@ -20,6 +20,7 @@ struct bs_station {
     char bssid[16];
     char ssid[32];
     int signal;
+    time_t time;
     struct bs_beacon_report beacon_report;
 };
 
@@ -38,6 +39,8 @@ int bs_station_list_get(struct bs_station_list *sl,
 int bs_station_list_update(struct bs_station_list *sl,
                                     char *addr, char *bssid, int signal,
                                     struct bs_beacon_report *beacon_report);
+
+void bs_station_list_remove_stale(struct bs_station_list *sl, time_t max_age);
 
 int bs_station_list_remove(struct bs_station_list *sl, char *addr);
 

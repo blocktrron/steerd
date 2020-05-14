@@ -55,6 +55,18 @@ static struct bs_station *bs_station_list_add(struct bs_station_list *sl)
     return &sl->buf[sl->len - 1];
 }
 
+static void bs_station_list_remove_idx(struct bs_station_list *sl, int idx)
+{
+    int last_idx;
+
+    last_idx = sl->len - 1;
+
+    if (idx != last_idx)
+        memcpy(&sl->buf[idx], &sl->buf[last_idx], sizeof(struct bs_station));
+
+    bs_station_list_resize(sl, sl->len - 1);
+}
+
 struct bs_station_list *bs_station_list_init()
 {
     struct bs_station_list *sl;
@@ -112,13 +124,36 @@ int bs_station_list_update(struct bs_station_list *sl,
     if (beacon_report)
         memcpy(&station->beacon_report, beacon_report, sizeof(struct bs_beacon_report));
 
+    station->time = time(0);
+
     pthread_mutex_unlock(&sl->lock);
     return ret;
 }
 
+void bs_station_list_remove_stale(struct bs_station_list *sl, time_t max_age)
+{
+    struct bs_station *station;
+    int idx;
+
+    pthread_mutex_lock(&sl->lock);
+
+    idx = 0;
+
+    while (idx < sl->len) {
+        station = &sl->buf[idx];
+
+        if (station->time < time(0) - max_age) {
+            bs_station_list_remove_idx(sl, idx);
+            continue;
+        }
+
+        idx++;
+    }
+    pthread_mutex_unlock(&sl->lock);
+}
+
 int bs_station_list_remove(struct bs_station_list *sl, char *addr)
 {
-    int last_idx;
     int idx;
 
     pthread_mutex_lock(&sl->lock);
@@ -128,12 +163,7 @@ int bs_station_list_remove(struct bs_station_list *sl, char *addr)
     if (idx < 1)
         return 0;
     
-    last_idx = sl->len - 1;
-
-    if (idx != last_idx)
-        memcpy(&sl->buf[idx], &sl->buf[last_idx], sizeof(struct bs_station));
-
-    bs_station_list_resize(sl, sl->len - 1);
+    bs_station_list_remove_idx(sl, idx);
 
     pthread_mutex_unlock(&sl->lock);
 

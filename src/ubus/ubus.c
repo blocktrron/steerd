@@ -124,6 +124,9 @@ void update_clients(struct uloop_timeout *t) {
     }
 
     globfree(&globbuf);
+
+    bs_station_list_remove_stale(station_list, 30);
+
     uloop_timeout_set(&client_timer, 10 * 1000);
 }
 
